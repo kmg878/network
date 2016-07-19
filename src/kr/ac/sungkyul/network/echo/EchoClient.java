@@ -1,4 +1,4 @@
-package kr.ac.sungkul.network.echo;
+package kr.ac.sungkyul.network.echo;
 
 import java.io.IOException;
 import java.io.InputStream;
