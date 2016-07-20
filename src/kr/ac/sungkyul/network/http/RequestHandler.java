@@ -46,7 +46,8 @@ public class RequestHandler extends Thread {
 				responseStaticResource(outputStream, tokens[1],tokens[2]);
 			}else{
 				/*post,put,DELETE 지원 안함(400 Bad request)*/
-				response404Error(outputStream,tokens[2]);
+//				response404Error(outputStream,tokens[2]);
+				response400Error(outputStream,tokens[2]);
 			}
 			
 			
@@ -81,6 +82,16 @@ public class RequestHandler extends Thread {
 		outputStream.write(body);
 		
 	}
+	private void response400Error(OutputStream outputStream,String protocol )throws IOException{
+		File file = new File("./webapp/error/400.html");
+		byte[] body = Files.readAllBytes(file.toPath());
+		//응답 헤더
+		outputStream.write((protocol+"400 File Not Found \r\n").getBytes("UTF-8"));
+		outputStream.write("Content-Type; charset=utf-8\r\n".getBytes( "UTF-8" ));
+		outputStream.write("\r\n".getBytes("UTF-8"));
+		outputStream.write(body);
+		
+	}
 
 	public void consoleLog( String message ) {
 		System.out.println( "[RequestHandler#" + getId() + "] " + message );
@@ -92,7 +103,7 @@ public class RequestHandler extends Thread {
 		
 		File file = new File("./webapp"+url);
 		if(file.exists() == false){
-			response404Error(outputStream,protocol);
+			response400Error(outputStream,protocol);
 			return;
 		}
 		Path path = file.toPath();
