@@ -12,11 +12,12 @@ import java.net.SocketException;
 import java.util.List;
 
 public class ChatServerTread extends Thread {
-	private static final PrintWriter printWriter = null;
+	
 	private String nickname;
 	private Socket socket;
 	List<Writer> listWriters;
-	
+	BufferedReader bufferedReader;
+		PrintWriter printWriter ;
 	
 	
 	public ChatServerTread(Socket socket, List<Writer> listWriters){
@@ -25,17 +26,12 @@ public class ChatServerTread extends Thread {
 	}
 
 	public void run() {
-		// 연결
-		InetSocketAddress remoteAddress = (InetSocketAddress) socket.getRemoteSocketAddress();
-		String remoteHostAddress = remoteAddress.getAddress().getHostAddress();
-		int remoteHostPort = remoteAddress.getPort();
-		consoleLog( "연결  from " + remoteHostAddress + ":" + remoteHostPort );
 
 		try {
 			// IOStream 받아오기
-			BufferedReader bufferedReader = new BufferedReader( 
+			bufferedReader = new BufferedReader( 
 					new InputStreamReader( socket.getInputStream(), "utf-8"));
-			PrintWriter printWriter = new PrintWriter(
+			 printWriter = new PrintWriter(
 					new OutputStreamWriter( socket.getOutputStream(), "utf-8" ), true );
 			
 			while (true) {
@@ -50,7 +46,7 @@ public class ChatServerTread extends Thread {
 				}else if("message".equals(tokens[0])){
 					doMessage(tokens[1]);
 				}else if("quit".equals(tokens[0])){
-					doQuit(printWriter);
+					doQuit(printWriter);break;
 				}else{
 					System.out.println("알 수 없는 요청");
 				}
@@ -78,8 +74,10 @@ public class ChatServerTread extends Thread {
 	
 	private void doQuit(Writer writer) {
 		removeWriter(writer);
-		String data =nickname +"님이 퇴장 하였습니다";
+		String data = nickname +"님이 퇴장하였습니다" ;
 		broadcast(data);
+		System.out.println(nickname+"님이 퇴장하였습니다");
+		
 		
 	}
 	private void removeWriter(Writer writer){
@@ -88,7 +86,8 @@ public class ChatServerTread extends Thread {
 	}
 
 	private void doMessage(String message) {
-		broadcast(message+"\r\n");
+		broadcast(nickname+":"+message+"\r\n");
+		System.out.println(nickname+":"+message);
 		
 	}
 
@@ -97,9 +96,10 @@ public class ChatServerTread extends Thread {
 	}
 	private void doJoin(String nickName,Writer writer){
 		this.nickname =nickName;
-		String data = nickName +"님이 참여하였습니다";
+		String data2 = nickName +"님이 참여하였습니다";
 		
-		broadcast(data);
+		broadcast(data2);
+		System.out.println(data2);
 		//writer pool 에 저장
 		addWriter(writer);
 		//ack
