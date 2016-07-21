@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 
 public class TCPClient {
 	private static final String SERVER_IP = "220.67.115.227";
@@ -16,6 +17,24 @@ public class TCPClient {
 		try{
 		//1.소캣 생성
 		socket = new Socket();
+		//1-1 소켓버퍼 사이즈 확인
+		int receiveBufferSize =socket.getReceiveBufferSize();
+		int sendBufferSize = socket.getSendBufferSize();
+		
+		System.out.println(receiveBufferSize +":"+sendBufferSize);
+		
+		//1-2 소켓 버퍼 사이즈 늘리기
+		socket.setReceiveBufferSize(1024 * 1024 * 10);
+		socket.setSendBufferSize(1024 * 1024 * 10);
+		
+		receiveBufferSize =socket.getReceiveBufferSize();
+		sendBufferSize = socket.getSendBufferSize();
+		
+		System.out.println(receiveBufferSize +":"+sendBufferSize);
+		//1-3 TCP NODELAY 옵션(Nagle off)
+		socket.setTcpNoDelay( true );
+		//1-4 SO_ TIMEOUT
+		socket.setSoTimeout(5000);  //데이터 읽는 시간은 5초 이내
 		
 		//2.서버 연결
 		InetSocketAddress serverSocketAddress = new InetSocketAddress(SERVER_IP,SERVER_PORT);
@@ -40,6 +59,8 @@ public class TCPClient {
 		data = new String(buffer,0,readBytes,"UTF-8");
 		System.out.println("[client] received"+data);
 		
+		}catch(SocketTimeoutException e){
+			System.out.println("[cleint] 소켓에서 데이터를 읽는데 시간이  지연되었습니다");
 		}catch(SocketException e){
 			System.out.println("[client] 비정상적으로 서버로 부터 연결이 끊어졌습니다");
 		

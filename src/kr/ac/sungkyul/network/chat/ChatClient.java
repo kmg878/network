@@ -11,14 +11,14 @@ import java.net.SocketException;
 import java.util.Scanner;
 
 public class ChatClient {
-	private static final String SERVER_IP = "220.67.115.227";
-	private static final int SERVER_PORT = 3000;
+	private static final String SERVER_IP = "220.67.115.225";
+	private static final int SERVER_PORT = 5000;
 
 	public static void main(String[] args) {
 		Socket socket = null;
 		Scanner scanner = null;
-		BufferedReader bufferedReader;
-		PrintWriter printWriter;
+		BufferedReader bufferedReader = null;
+		PrintWriter printWriter = null;
 
 		try {
 
@@ -42,9 +42,10 @@ public class ChatClient {
 				String nickname = scanner.nextLine();
 				printWriter.println("join:" + nickname);
 				printWriter.flush();
+				bufferedReader.readLine();
 
 				// 6. ChatClientReceiveThread 시작
-				ChatClientReceiveThread thread = new ChatClientReceiveThread(bufferedReader);
+				Thread thread = new ChatClientReceiveThread(bufferedReader);
 				thread.start();
 
 				// 7. 키보드 입력 처리
@@ -54,10 +55,12 @@ public class ChatClient {
 								
 				      if( "quit".equals( input ) == true ) {
 				          // 8. quit 프로토콜 처리
+				    	  printWriter.print("quit");
+				    	  printWriter.flush();
 				          break;
 				      } else {
 				          // 9. 메시지 처리 
-				    	  System.out.println(nickname+":"+input);
+				    	 
 				    	  printWriter.println("message:"+input );
 				    	  printWriter.flush();
 				      }
